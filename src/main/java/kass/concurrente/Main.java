@@ -66,14 +66,31 @@ public class Main implements Runnable {
             m.p[i] = new Prisionero(i, i == 0, 0);
         }
 
-        // Mientras el vocero no diga que ya pasaron todos escogemos a un prisionero de 
-        // manera aleatoria y lo mandamos a la habitacion
+        // Create an array of threads
+        Thread[] threads = new Thread[Constante.PRISIONEROS];
+        
+        // Initialize each thread in the array
+        for (int i = 0; i < Constante.PRISIONEROS; i++) {
+            threads[i] = new Thread(m, Integer.toString(i));
+        }
+        
+        // While the vocero has not confirmed that all prisoners have passed, 
+        // randomly select a prisoner and send them to the room
         while (!yaPasaron) {
             int prisionero = random.nextInt(Constante.PRISIONEROS);
-            Thread t = new Thread(m, Integer.toString(prisionero));
-            t.start();
-            t.join();
+            if (!threads[prisionero].isAlive()) {
+                threads[prisionero] = new Thread(m, Integer.toString(prisionero)); // Sin esta linea no se puede volver a iniciar el hilo
+                try {
+                    threads[prisionero].start();
+                    threads[prisionero].join();
+                } catch (Exception e) {
+                    System.err.println("Error en el hilo " + prisionero + " " + e.toString());
+                }
+            }
         }
+        
+        System.out.println("Tenemos un total de " + Constante.PRISIONEROS + " prisioneros");
+        System.out.println("Se espera que el contador sea " + (2 * Constante.PRISIONEROS - 2));
         
         System.out.println("Tenemos un total de " + Constante.PRISIONEROS + " prisioneros");
         System.out.println("Se espera que el contador sea " + (2*Constante.PRISIONEROS - 2));
