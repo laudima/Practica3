@@ -6,7 +6,7 @@ package kass.concurrente.constantes;
  * @version 1.0
  */
 public class Constante {
-    public static final Integer PRISIONEROS = 5;
+    public static final Integer PRISIONEROS = 10;
     public static final Boolean LOGS = true;
     public static final Integer DIEZ_SEGUNDOS = 10000;
     public static final Integer CINCO_SEGUNDOS = 5000;
