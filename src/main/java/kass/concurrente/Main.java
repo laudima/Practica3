@@ -43,15 +43,21 @@ public class Main implements Runnable {
      */
     @Override
     public void run() {
-        int id = Integer.parseInt(Thread.currentThread().getName()); 
-        lock.lock();
-        try {
-            yaPasaron = hab.entraHabitacion(p[id]);
-        } catch (InterruptedException e) {
-            System.err.println("Error en el hilo" + e.getMessage());
+        int id = Integer.parseInt(Thread.currentThread().getName());//Tu hilo 0, yo hilo 1
+        while(!yaPasaron){
+            lock.lock();
+            try {
+                yaPasaron = hab.entraHabitacion(p[id]);
+            } catch (InterruptedException e) {
+                System.err.println("Error en el hilo" + e.getMessage());
+            }
+            lock.unlock();
+            try {
+                Thread.currentThread().sleep(100);
+            } catch (InterruptedException e) {
+                System.err.println("Error en el hilo" + e.getMessage());
+            }
         }
-        lock.unlock();
-
     }
 
 
@@ -71,22 +77,13 @@ public class Main implements Runnable {
         
         // Initialize each thread in the array
         for (int i = 0; i < Constante.PRISIONEROS; i++) {
-            threads[i] = new Thread(m, Integer.toString(i));
+            Thread t = new Thread(m, Integer.toString(i));
+            threads[i] = t;
+            t.start();
         }
-        
-        // While the vocero has not confirmed that all prisoners have passed, 
-        // randomly select a prisoner and send them to the room
-        while (!yaPasaron) {
-            int prisionero = random.nextInt(Constante.PRISIONEROS);
-            if (!threads[prisionero].isAlive()) {
-                threads[prisionero] = new Thread(m, Integer.toString(prisionero)); // Sin esta linea no se puede volver a iniciar el hilo
-                try {
-                    threads[prisionero].start();
-                    threads[prisionero].join();
-                } catch (Exception e) {
-                    System.err.println("Error en el hilo " + prisionero + " " + e.toString());
-                }
-            }
+
+        for(Thread t : threads) {
+            t.join();
         }
         
         System.out.println("Tenemos un total de " + Constante.PRISIONEROS + " prisioneros");
